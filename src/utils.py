@@ -1,4 +1,4 @@
-"""Utility functions: logging setup, file discovery, cost estimation."""
+"""Utility functions: logging setup and file discovery."""
 
 from __future__ import annotations
 
@@ -22,11 +22,4 @@ def setup_logging(verbose: bool = False) -> None:
     root.addHandler(handler)
 
     # Suppress noisy third-party loggers
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("anthropic").setLevel(logging.WARNING)
     logging.getLogger("pdfplumber").setLevel(logging.WARNING)
-
-
-def format_cost(cost: float) -> str:
-    """Format a cost value as USD."""
-    return f"${cost:.2f}"

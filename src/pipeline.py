@@ -28,7 +28,7 @@ class PipelineResult:
         self.files_skipped: list[tuple[str, str]] = []  # (filename, reason)
         self.fund_errors: list[tuple[str, str]] = []  # (fund_name, error)
         self.output_path: Path | None = None
-        self.estimated_cost: float = 0.0
+        self.cli_calls: int = 0
 
 
 def discover_files(input_dir: Path) -> list[Path]:
@@ -183,7 +183,7 @@ def run(config: Config) -> PipelineResult:
             # Save JSON backup
             _save_json_backup(config, result)
 
-    result.estimated_cost = claude.estimate_cost()
+    result.cli_calls = claude.call_count
     return result
 
 

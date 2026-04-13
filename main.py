@@ -1,7 +1,7 @@
 """Mutual Funds Analyzing Tool - CLI entry point.
 
 Reads BlackRock Mexico mutual fund prospectus PDFs/Excel files,
-extracts structured data via the Claude API, and generates
+extracts structured data via Claude Code CLI, and generates
 a comprehensive Excel report with per-fund details and cross-fund analysis.
 """
 
@@ -14,7 +14,7 @@ from rich.console import Console
 
 from src.config import load_config, validate_config
 from src.pipeline import run as run_pipeline, PipelineResult
-from src.utils import format_cost, setup_logging
+from src.utils import setup_logging
 
 console = Console()
 
@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model",
-        help="Claude model to use (default: claude-sonnet-4-6)",
+        help="Claude model to use (default: sonnet). Accepts aliases like 'sonnet', 'opus', 'haiku'.",
     )
     parser.add_argument(
         "--config",
@@ -75,7 +75,8 @@ def print_summary(result: PipelineResult) -> None:
     if result.output_path:
         console.print(f"\n  Output: [bold green]{result.output_path}[/bold green]")
 
-    console.print(f"  Estimated API cost: [bold]{format_cost(result.estimated_cost)}[/bold]")
+    console.print(f"  Claude CLI calls:  [bold]{result.cli_calls}[/bold]")
+    console.print("  Cost: [bold green]$0.00 (uses Claude Code subscription)[/bold green]")
     console.print("=" * 60)
 
 

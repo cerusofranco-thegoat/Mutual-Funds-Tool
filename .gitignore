@@ -12,9 +12,13 @@ venv/
 .vscode/
 .idea/
 
-# Output files
+# Output and uploads
 output/*.xlsx
 output/*.json
+uploads/
+
+# Auth (contains credentials)
+auth.yaml
 
 # OS
 Thumbs.db

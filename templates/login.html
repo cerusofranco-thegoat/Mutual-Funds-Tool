@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Login - Mutual Funds Tool{% endblock %}
+{% block content %}
+<div style="max-width: 400px; margin: 4rem auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;">Sign In</h2>
+        <form method="POST">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required autofocus>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                Login
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

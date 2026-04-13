@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Job {{ job.id }} - Mutual Funds Tool{% endblock %}
+{% block content %}
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Job {{ job.id }}</h2>
+        <span class="badge badge-{{ job.status }}" id="statusBadge">{{ job.status }}</span>
+    </div>
+
+    <div style="margin-top: 1rem; font-size: 0.9rem; color: #94a3b8;">
+        <p>Created: {{ job.created }}</p>
+        <p>Files: {{ job.files | join(', ') }}</p>
+    </div>
+
+    {% if job.status in ['queued', 'processing'] %}
+    <div style="margin-top: 1.5rem; text-align: center; padding: 2rem;">
+        <div class="spinner"></div>
+        <span id="statusText">
+            {% if job.status == 'queued' %}Waiting to start...{% else %}Analyzing prospectus files with Claude...{% endif %}
+        </span>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top: 1rem;">
+            This may take a few minutes depending on file size and count.
+        </p>
+    </div>
+    {% endif %}
+
+    {% if job.error %}
+    <div class="flash error" style="margin-top: 1rem;">
+        {{ job.error }}
+    </div>
+    {% endif %}
+
+    {% if job.result %}
+    <div class="stat-grid">
+        <div class="stat-box">
+            <div class="number">{{ job.result.files_processed }}</div>
+            <div class="label">Files Processed</div>
+        </div>
+        <div class="stat-box">
+            <div class="number">{{ job.result.funds_extracted }}</div>
+            <div class="label">Funds Extracted</div>
+        </div>
+        <div class="stat-box">
+            <div class="number">{{ job.result.cli_calls }}</div>
+            <div class="label">Claude Calls</div>
+        </div>
+        <div class="stat-box">
+            <div class="number">{{ job.result.files_skipped | length }}</div>
+            <div class="label">Files Skipped</div>
+        </div>
+    </div>
+
+    {% if job.result.files_skipped %}
+    <div style="margin-top: 1rem; font-size: 0.85rem;">
+        <strong style="color: #fbbf24;">Skipped files:</strong>
+        {% for name, reason in job.result.files_skipped %}
+        <div style="color: #94a3b8; margin-left: 1rem;">{{ name }}: {{ reason }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if job.result.fund_errors %}
+    <div style="margin-top: 1rem; font-size: 0.85rem;">
+        <strong style="color: #f87171;">Errors:</strong>
+        {% for name, error in job.result.fund_errors %}
+        <div style="color: #94a3b8; margin-left: 1rem;">{{ name }}: {{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if job.output_path %}
+    <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="{{ url_for('download', job_id=job.id) }}" class="btn btn-success" style="font-size: 1rem; padding: 0.8rem 2rem;">
+            &#11015; Download Excel Report
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="{{ url_for('index') }}" style="color: #94a3b8; font-size: 0.9rem;">&larr; Back to Dashboard</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{% if job.status in ['queued', 'processing'] %}
+<script>
+function pollStatus() {
+    fetch('{{ url_for("job_status_api", job_id=job.id) }}')
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'completed' || data.status === 'failed') {
+                window.location.reload();
+            } else {
+                document.getElementById('statusText').textContent =
+                    data.status === 'queued' ? 'Waiting to start...' : 'Analyzing prospectus files with Claude...';
+                setTimeout(pollStatus, 3000);
+            }
+        })
+        .catch(() => setTimeout(pollStatus, 5000));
+}
+setTimeout(pollStatus, 3000);
+</script>
+{% endif %}
+{% endblock %}

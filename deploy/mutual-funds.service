@@ -1,0 +1,15 @@
+[Unit]
+Description=Mutual Funds Analyzing Tool
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/mutual-funds-tool
+ExecStart=/opt/mutual-funds-tool/venv/bin/gunicorn -c deploy/gunicorn.conf.py web:app
+Restart=always
+RestartSec=5
+Environment=FLASK_SECRET_KEY=CHANGE_THIS_TO_A_RANDOM_STRING
+
+[Install]
+WantedBy=multi-user.target

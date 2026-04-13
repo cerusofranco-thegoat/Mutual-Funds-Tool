@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Mutual Funds Tool{% endblock %}
+{% block content %}
+
+<!-- Upload Card -->
+<div class="card">
+    <h2>Upload Prospectus Files</h2>
+    <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="uploadForm">
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click();">
+            <p style="font-size: 2rem;">&#128196;</p>
+            <p>Drag & drop PDF or Excel files here, or click to browse</p>
+            <p style="font-size: 0.8rem;">Accepted: .pdf, .xlsx, .xls</p>
+            <input type="file" id="fileInput" name="files" multiple accept=".pdf,.xlsx,.xls">
+            <div class="file-list" id="fileList"></div>
+        </div>
+        <div style="margin-top: 1rem; text-align: right;">
+            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                Analyze Files
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Jobs Table -->
+{% if jobs %}
+<div class="card">
+    <h2>Analysis Jobs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Job ID</th>
+                <th>Files</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for id, job in jobs|dictsort(reverse=true) %}
+            <tr>
+                <td><a href="{{ url_for('job_status', job_id=id) }}" style="color: #38bdf8;">{{ id }}</a></td>
+                <td>{{ job.files|length }} file(s)</td>
+                <td><span class="badge badge-{{ job.status }}">{{ job.status }}</span></td>
+                <td>{{ job.created }}</td>
+                <td>
+                    {% if job.output_path %}
+                    <a href="{{ url_for('download', job_id=id) }}" class="btn btn-success" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">
+                        Download
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const submitBtn = document.getElementById('submitBtn');
+
+fileInput.addEventListener('change', updateFileList);
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#2563eb';
+});
+dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = '#475569';
+});
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#475569';
+    fileInput.files = e.dataTransfer.files;
+    updateFileList();
+});
+
+function updateFileList() {
+    const files = fileInput.files;
+    if (files.length > 0) {
+        fileList.innerHTML = Array.from(files).map(f =>
+            `<div>${f.name} (${(f.size / 1024).toFixed(1)} KB)</div>`
+        ).join('');
+        submitBtn.disabled = false;
+    } else {
+        fileList.innerHTML = '';
+        submitBtn.disabled = true;
+    }
+}
+</script>
+{% endblock %}

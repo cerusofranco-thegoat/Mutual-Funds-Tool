@@ -1,0 +1,8 @@
+input_dir: ./input
+output_dir: ./output
+model: claude-sonnet-4-6
+max_tokens_extraction: 16000
+max_tokens_analysis: 32000
+language: es
+output_language: en
+cost_warning_threshold: 5.00

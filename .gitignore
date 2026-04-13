@@ -1,0 +1,24 @@
+# Environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Output files
+output/*.xlsx
+output/*.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Claude
+.claude/

@@ -96,8 +96,15 @@ class ClaudeClient:
 
             if proc.returncode != 0:
                 stderr = proc.stderr.strip()
-                logger.error("Claude CLI failed (exit %d): %s", proc.returncode, stderr)
-                raise RuntimeError(f"Claude CLI error: {stderr}")
+                stdout = proc.stdout.strip()
+                logger.error(
+                    "Claude CLI failed (exit %d)\nSTDERR: %s\nSTDOUT: %s",
+                    proc.returncode, stderr or "<empty>", stdout or "<empty>",
+                )
+                raise RuntimeError(
+                    f"Claude CLI error (exit {proc.returncode}): "
+                    f"stderr={stderr or '<empty>'} stdout={stdout or '<empty>'}"
+                )
 
             raw_output = proc.stdout.strip()
             if not raw_output:

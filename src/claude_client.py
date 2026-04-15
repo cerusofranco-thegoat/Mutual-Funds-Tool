@@ -63,6 +63,15 @@ class ClaudeClient:
         schema = response_model.model_json_schema()
         schema_str = json.dumps(schema)
 
+        json_instruction = (
+            "\n\nCRITICAL OUTPUT FORMAT: You MUST respond with a single valid JSON "
+            "object that conforms exactly to the following JSON Schema. Output ONLY "
+            "the JSON object — no prose, no markdown, no code fences, no commentary "
+            "before or after. Start your response with `{` and end with `}`.\n\n"
+            f"JSON Schema:\n{schema_str}"
+        )
+        effective_system = system_prompt + json_instruction
+
         # Write the user message to a temp file to avoid command-line length limits
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".txt", delete=False, encoding="utf-8"
@@ -75,8 +84,7 @@ class ClaudeClient:
                 "claude",
                 "-p",
                 "--output-format", "json",
-                "--json-schema", schema_str,
-                "--system-prompt", system_prompt,
+                "--system-prompt", effective_system,
                 "--model", self.config.model,
                 "--no-session-persistence",
             ]

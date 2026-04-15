@@ -79,7 +79,6 @@ class ClaudeClient:
                 "--system-prompt", system_prompt,
                 "--model", self.config.model,
                 "--no-session-persistence",
-                "--bare",
             ]
 
             # Pipe the user message via stdin from the temp file

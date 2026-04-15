@@ -54,8 +54,12 @@ def _extract_spreadsheetml(file_path: Path) -> list[PageContent]:
     import xml.etree.ElementTree as ET
 
     ns = {"ss": "urn:schemas-microsoft-com:office:spreadsheet"}
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+    with open(file_path, "rb") as f:
+        raw = f.read()
+    # Strip any leading UTF-8 BOMs (iShares files sometimes have two)
+    while raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    root = ET.fromstring(raw)
 
     pages: list[PageContent] = []
     for i, worksheet in enumerate(root.findall("ss:Worksheet", ns)):
